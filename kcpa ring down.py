@@ -3,6 +3,8 @@
 Created on Thu Sep  7 16:18:23 2023
 
 @author: dudle
+
+This program finds the ringdown time of a specified frequency
 """
 
 
@@ -17,7 +19,8 @@ from scipy.fft import fft, fftfreq
 
 plt.close('all')
 
-
+Fq = 440 #this is if you dont want to choose the frequency manually
+    
 
 df = pd.read_csv('1012232.txt'); df
 # spacing = (((df['time'].iloc[-1]-df['time'].iloc[0])*10**-6))
@@ -33,8 +36,9 @@ plt.pcolormesh(t, f, Sxx, shading='gouraud')
 plt.ylabel('Frequency [Hz]')
 plt.xlabel('Time [sec]')
 plt.show()
-y = Sxx[min(range(len(f)), key=lambda i: abs(f[i]-440))]
-
+#y = Sxx[min(range(len(f)), key=lambda i: abs(f[i]-440))]
+y = Sxx[Sxx.sum(axis=1).argmax()]
+print(Sxx.sum(axis=1).argmax())
 
 
 def line(x, b, m = 0):
@@ -60,6 +64,7 @@ plt.plot(t, func(t, *popt))
 print(popt)
 plt.plot(t, y)
 plt.show()
+print('-3dB time is ', np.log(0.5)/popt[1], 's for a frequency of ', f[Sxx.sum(axis=1).argmax()], 'Hz')
 
 
 # vf = fft(np.array((df['voltage'])))
