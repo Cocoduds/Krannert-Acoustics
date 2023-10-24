@@ -64,7 +64,7 @@ plt.plot(t, func(t, *popt))
 print(popt)
 plt.plot(t, y)
 plt.show()
-print('-3dB time is ', np.log(0.5)/popt[1], 's for a frequency of ', f[Sxx.sum(axis=1).argmax()], 'Hz')
+print('-3dB time is ', np.log(0.001)/popt[1], 's for a frequency of ', f[Sxx.sum(axis=1).argmax()], 'Hz')
 
 
 # vf = fft(np.array((df['voltage'])))
