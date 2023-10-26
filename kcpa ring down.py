@@ -62,14 +62,14 @@ popt, pcov = curve_fit(func, t, y, p0=[0,0,1.5],
                        maxfev=100000)
 
 plt.figure(2)
-plt.plot(t, func(t, *popt), label = "{:0.2f}e^{:0.2f}".format(popt[0],popt[1]))
+plt.plot(t, func(t, *popt), label = "{:0.2f}e^{:0.2f}x".format(popt[0],popt[1]))
 plt.plot(t, y, label = ' {:0.2f} Hz'.format(f[Sxx.sum(axis=1).argmax()]))
 plt.title("Ringdown of {:0.2f} Hz ".format(f[Sxx.sum(axis=1).argmax()]))
 plt.ylabel("Intensity")
 plt.xlabel("Time (s)")
 plt.legend()
 plt.show()
-print('RT60 time is {:0.2f} s for a frequency of {:0.2f} Hz'.format(np.log(0.001)/popt[1], f[Sxx.sum(axis=1).argmax()]))
+print('RT60 time is {:0.2f} s for a frequency of {:0.2f} Hz'.format(np.log(0.001*popt[0])/popt[1], f[Sxx.sum(axis=1).argmax()]))
 print('Decay time, \u03C4 = {:0.2f} s'.format(-1/popt[1]))
 
 # vf = fft(np.array((df['voltage'])))
