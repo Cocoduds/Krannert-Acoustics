@@ -21,7 +21,7 @@ plt.close('all')
 
 Fq = 440 #this is if you dont want to choose the frequency manually
     
-df = pd.read_csv('1024232.txt'); df
+df = pd.read_csv('1024231.txt'); df
 # spacing = (((df['time'].iloc[-1]-df['time'].iloc[0])*10**-6))
 # rate = 1/((df['time'].iloc[-1]-df['time'].iloc[1])/len(df['time'])*10**-6)
 # print(rate)
@@ -33,6 +33,7 @@ rate = 70000/2.05
 f, t, Sxx = spectrogram(df['raw data'],rate, nfft=600)
 plt.figure(1)
 plt.pcolormesh(t, f, Sxx, shading='gouraud')
+plt.title("Spectrogram")
 plt.ylabel('Frequency [Hz]')
 plt.xlabel('Time [sec]')
 plt.show()
@@ -61,17 +62,24 @@ popt, pcov = curve_fit(func, t, y, p0=[0,0,1.5],
                        maxfev=100000)
 
 plt.figure(2)
-plt.plot(t, func(t, *popt))
-print(popt)
-plt.plot(t, y)
+plt.plot(t, func(t, *popt), label = "{:0.2f}e^{:0.2f}".format(popt[0],popt[1]))
+plt.plot(t, y, label = ' {:0.2f} Hz'.format(f[Sxx.sum(axis=1).argmax()]))
+plt.title("Ringdown of {:0.2f} Hz ".format(f[Sxx.sum(axis=1).argmax()]))
+plt.ylabel("Intensity")
+plt.xlabel("Time (s)")
+plt.legend()
 plt.show()
-print('RT60 time is ', np.log(0.001)/popt[1], 's for a frequency of ', f[Sxx.sum(axis=1).argmax()], 'Hz')
-
+print('RT60 time is {:0.2f} s for a frequency of {:0.2f} Hz'.format(np.log(0.001)/popt[1], f[Sxx.sum(axis=1).argmax()]))
+print('Decay time, \u03C4 = {:0.2f} s'.format(-1/popt[1]))
 
 # vf = fft(np.array((df['voltage'])))
 # xf = fftfreq(N, spacing)[:N//2]
 # plt.plot(xf, np.abs(vf[:N//2])  )
+
 plt.figure(3)
+plt.title("Raw Data")
+plt.xlabel("Time (s)")
+plt.ylabel("Digital Value")
 plt.plot(np.linspace(0,2.05, num=len(df['raw data'])), df['raw data'])
 plt.show()
     
