@@ -20,14 +20,13 @@ def plot(filepath,i,idx,h):
         
     df = pd.read_csv(filepath); df
     rate = df.iloc[-1]['raw data']
-    print(rate)
     df.drop(df.index[-1], inplace=True)
+    print(rate)
     # spacing = (((df['time'].iloc[-1]-df['time'].iloc[0])*10**-6))
     # rate = 1/((df['time'].iloc[-1]-df['time'].iloc[1])/len(df['time'])*10**-6)
     # print(rate)
    
     # rate = 36488
-    rate = 90000/(5.248-2.030)
     
     
     f, t, Sxx = spectrogram(df['raw data'],rate, nfft=600)
@@ -118,16 +117,18 @@ def read_files_in_directory(directory_path):
         idx=1
         
         for filename in os.listdir(directory_path):
-            print(filename)
-            if filename.endswith(".TXT") and filename.startswith("d"+str(i)):
-     
+            
+            if filename.endswith(".TXT") and filename.startswith("D"+str(i)):
+                
+                print(filename)
                 filepath = os.path.join(directory_path, filename)  # Get full path
                 dfs[i][f'trial{idx}'] = pd.read_csv(filepath)
+                
                 plot(filepath,i,idx,h)
                 now = datetime.now()
                 date_time1 = now.strftime("%m-%d-%Y")
                 date_time = now.strftime("%m-%d-%Y%H%M%S")
-                save_direct = 'C:\\Users\\jinen\\OneDrive - University of Illinois - Urbana\\Desktop\\'+date_time1
+                save_direct = 'C:\\Users\\jinen\\OneDrive - University of Illinois - Urbana\\Desktop\\New Folder (7)\\'+date_time1
                 if h==1 and not os.path.exists(save_direct):
                     os.mkdir(date_time1) 
                
@@ -155,8 +156,13 @@ for i in range(1,4):
             
             combined_voltage[trial_name] = df['raw data']
             a[i]=combined_voltage
-b=np.array(a[2])
+b=np.array(a[1])
 print(b)
+
+
+
+
+
 
 
 
