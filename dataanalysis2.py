@@ -2,31 +2,24 @@
 """
 Created on Thu Nov  2 15:55:46 2023
 
-@author: jinen
+@author: jineng
 """
 
 import numpy as np
 from scipy.optimize import curve_fit
-from scipy.optimize import differential_evolution
-import warnings
+
 import matplotlib.pyplot as plt
 import pandas as pd
 from scipy.signal import spectrogram
-from scipy.fft import fft, fftfreq
+
 def plot(filepath,i,idx,h):
 
-
-    #Fq = 440 #this is if you dont want to choose the frequency manually
         
     df = pd.read_csv(filepath); df
     rate = df.iloc[-1]['raw data']
     df.drop(df.index[-1], inplace=True)
     print(rate)
-    # spacing = (((df['time'].iloc[-1]-df['time'].iloc[0])*10**-6))
-    # rate = 1/((df['time'].iloc[-1]-df['time'].iloc[1])/len(df['time'])*10**-6)
-    # print(rate)
-   
-    # rate = 36488
+
     
     
     f, t, Sxx = spectrogram(df['raw data'],rate, nfft=600)
@@ -63,6 +56,7 @@ def plot(filepath,i,idx,h):
     popt, pcov = curve_fit(func, t, y, p0=[0,0,1.5], 
                            bounds = ((0,-np.inf, 0),(100, 0, 3)), 
                            maxfev=100000)
+    
     plt.title('Device '+str(i)+' Runs '+str(idx)) 
     print('Device '+str(i)+' Runs '+str(idx)) 
     plt.subplot(2,2,2)
@@ -75,9 +69,12 @@ def plot(filepath,i,idx,h):
     plt.yscale("log")
     plt.legend()
     plt.show()
-    print('RT60 time is {:0.2f} s for a frequency of {:0.2f} Hz'.format(np.log(0.001*popt[0])/popt[1], f[Sxx.sum(axis=1).argmax()]))
-    print('Decay time, \u03C4 = {:0.2f} s'.format(-1/popt[1]))
+    print('RT60 time is {:0.2f} +- {:0.2f} s for a frequency of {:0.2f} Hz'.format(np.log(0.001)/popt[1],np.abs(np.log(0.001) / popt[1]**2) * np.sqrt(pcov[1, 1]), f[Sxx.sum(axis=1).argmax()])) #possible error np.sqrt((pcov[0,0]/popt[0]2)2+(pcov[1,1]/popt[1])**2)
+    print('Decay time, \u03C4 = {:0.2f} +- {:0.2f} s'.format(-1/popt[1],np.sqrt(pcov[1, 1])*(1/ popt[1]**2)))
+    print(pcov)
     
+    
+ 
     
     # vf = fft(np.array((df['voltage'])))
     # xf = fftfreq(N, spacing)[:N//2]
@@ -91,7 +88,7 @@ def plot(filepath,i,idx,h):
     
     plt.subplot(2,2,4)
 
-    plt.plot(t, func(t, *popt), label = "{:0.2f}e^{:0.2f}x".format(popt[0],popt[1]))
+    plt.plot(t, func(t, *popt   ), label = "{:0.2f}e^{:0.2f}x".format(popt[0],popt[1]))
     plt.plot(t, y, label = ' {:0.2f} Hz'.format(f[Sxx.sum(axis=1).argmax()]))
     plt.title("Ringdown of {:0.2f} Hz (Log Scale) ".format(f[Sxx.sum(axis=1).argmax()]))
     plt.title("RT60 time is {:0.2f} s for a frequency of {:0.2f} Hz,Decay time, \u03C4 = {:0.2f} s ".format(np.log(0.001*popt[0])/popt[1], f[Sxx.sum(axis=1).argmax()],-1/popt[1]))
@@ -105,8 +102,6 @@ def plot(filepath,i,idx,h):
 
 
 import os
-import pandas as pd
-import numpy as np
 from datetime import datetime
 def read_files_in_directory(directory_path):
     dfs = {}  # A dictionary to store DataFrames
@@ -131,8 +126,8 @@ def read_files_in_directory(directory_path):
                 save_direct = 'C:\\Users\\jinen\\OneDrive - University of Illinois - Urbana\\Desktop\\New Folder (7)\\'+date_time1
                 if h==1 and not os.path.exists(save_direct):
                     os.mkdir(date_time1) 
-               
-                plt.savefig(os.path.join(save_direct,date_time+'Device '+str(i)+' Runs '+str(idx)))
+                plt.gcf().set_size_inches(16, 10)
+                plt.savefig(os.path.join(save_direct,date_time+'Device '+str(i)+' Runs '+str(idx)),dpi=100, bbox_inches='tight')
                 idx += 1
          
                 h +=1 
