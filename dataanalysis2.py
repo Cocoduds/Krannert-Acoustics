@@ -121,19 +121,7 @@ def read_files_in_directory(directory_path):
             if filename.endswith(".TXT") and filename.startswith("D"+str(i)):
                 
                 print(filename)
-                filepath = os.path.join(directory_path, filename)  # Get full path
-                dfs[i][f'trial{idx}'] = pd.read_csv(filepath)
-                
-                plot(filepath,i,idx,h)
-                now = datetime.now()
-                date_time1 = now.strftime("%m-%d-%Y")
-                date_time = now.strftime("%m-%d-%Y%H%M%S")
-                save_direct = 'C:\\Users\\jinen\\OneDrive - University of Illinois - Urbana\\Desktop\\New Folder (7)\\'+date_time1
-                if h==1 and not os.path.exists(save_direct):
-                    os.mkdir(date_time1) 
-               
-                plt.savefig(os.path.join(save_direct,date_time+'Device '+str(i)+' Runs '+str(idx)))
-                idx += 1
+             x += 1
          
                 h +=1 
     return dfs
@@ -163,7 +151,19 @@ print(b)
 
 
 
-
+   filepath = os.path.join(directory_path, filename)  # Get full path
+                dfs[i][f'trial{idx}'] = pd.read_csv(filepath)
+                
+                plot(filepath,i,idx,h)
+                now = datetime.now()
+                date_time1 = now.strftime("%m-%d-%Y")
+                date_time = now.strftime("%m-%d-%Y%H%M%S")
+                save_direct = 'C:\\Users\\jinen\\OneDrive - University of Illinois - Urbana\\Desktop\\New Folder (7)\\'+date_time1
+                if h==1 and not os.path.exists(save_direct):
+                    os.mkdir(date_time1) 
+               
+                plt.savefig(os.path.join(save_direct,date_time+'Device '+str(i)+' Runs '+str(idx)))
+                id
 
 
 
