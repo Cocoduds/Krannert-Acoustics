@@ -2,7 +2,7 @@
 """
 Created on Thu Sep  7 16:18:23 2023
 
-@author: dudle
+@author: colton, neng, christian, josh
 
 This program finds the ringdown time of a specified frequency
 """
@@ -16,19 +16,40 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from scipy.signal import spectrogram
 from scipy.fft import fft, fftfreq
+import os
+
+
+def read_files_in_directory(directory_path):
+    dfs = {}  # A dictionary to store DataFrames
+    idx = 1  # Index for naming
+    for i in range(1,4):
+        dfs[i]={}
+        idx=1
+        for filename in os.listdir(directory_path):
+            if filename.endswith(".TXT") and filename.startswith("d"+str(i)):
+                filepath = os.path.join(directory_path, filename)  # Get full path
+                dfs[i][f'trial{idx}'] = pd.read_csv(filepath)
+                idx += 1
+    return dfs
+
+
+directory_path = os.getcwd()
+dataframes = read_files_in_directory(directory_path)
 
 plt.close('all')
 
-Fq = 440 #this is if you dont want to choose the frequency manually
+Fq = 370 #this is if you dont want to choose the max Fq
     
-df = pd.read_csv('1024231.txt'); df
+df = pd.read_csv('D11.txt'); df
 # spacing = (((df['time'].iloc[-1]-df['time'].iloc[0])*10**-6))
 # rate = 1/((df['time'].iloc[-1]-df['time'].iloc[1])/len(df['time'])*10**-6)
 # print(rate)
 N=len(df['raw data'])
-# rate = 36488
+# rate = 37700
 #rate = 90000/(5.248-2.030)
-rate = 70000/2.05
+# rate = 70000/2.05
+rate = df.iloc[-1]['raw data']
+df.drop(df.tail(1).index, inplace = True)
 
 f, t, Sxx = spectrogram(df['raw data'],rate, nfft=600)
 plt.figure(1)
@@ -37,9 +58,9 @@ plt.title("Spectrogram")
 plt.ylabel('Frequency [Hz]')
 plt.xlabel('Time [sec]')
 plt.show()
-#y = Sxx[min(range(len(f)), key=lambda i: abs(f[i]-Fq))]
+# y = Sxx[min(range(len(f)), key=lambda i: abs(f[i]-Fq))] #for picking Fq
 y = Sxx[Sxx.sum(axis=1).argmax()]
-print(Sxx.sum(axis=1).argmax())
+# print(Sxx.sum(axis=1).argmax())
 
 
 def line(x, b, m = 0):
@@ -69,8 +90,8 @@ plt.ylabel("Intensity")
 plt.xlabel("Time (s)")
 plt.legend()
 plt.show()
-print('RT60 time is {:0.2f} s for a frequency of {:0.2f} Hz'.format(np.log(0.001*popt[0])/popt[1], f[Sxx.sum(axis=1).argmax()]))
-print('Decay time, \u03C4 = {:0.2f} s'.format(-1/popt[1]))
+print('RT60 time is {:0.2f} +- {:0.2f} s for a frequency of {:0.2f} Hz'.format(np.log(0.001)/popt[1], (np.log(0.001)/popt[1])*np.sqrt(pcov[1,1])/-popt[1], f[Sxx.sum(axis=1).argmax()])) #possible error np.sqrt((pcov[0,0]/popt[0]**2)**2+(pcov[1,1]/popt[1])**2)
+print('Decay time, \u03C4 = {:0.2f} +- {:0.2f} s'.format(-1/popt[1], (1/popt[1])*np.sqrt(pcov[1,1])/popt[1]))
 
 # vf = fft(np.array((df['voltage'])))
 # xf = fftfreq(N, spacing)[:N//2]
