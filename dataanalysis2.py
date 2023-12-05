@@ -72,8 +72,8 @@ def plot(filepath,i,idx,h):
     print('RT60 time is {:0.2f} +- {:0.2f} s for a frequency of {:0.2f} Hz'.format(np.log(0.001)/popt[1],np.abs(np.log(0.001) / popt[1]**2) * np.sqrt(pcov[1, 1]), f[Sxx.sum(axis=1).argmax()])) #possible error np.sqrt((pcov[0,0]/popt[0]2)2+(pcov[1,1]/popt[1])**2)
     print('Decay time, \u03C4 = {:0.2f} +- {:0.2f} s'.format(-1/popt[1],np.sqrt(pcov[1, 1])*(1/ popt[1]**2)))
     print(pcov)
-    
-    
+    rt60=np.log(0.001)/popt[1]
+   
  
     
     # vf = fft(np.array((df['voltage'])))
@@ -96,6 +96,7 @@ def plot(filepath,i,idx,h):
     plt.xlabel("Time (s)")
     plt.legend()
     plt.show()
+    return rt60
 
 
 
@@ -107,19 +108,25 @@ def read_files_in_directory(directory_path):
     dfs = {}  # A dictionary to store DataFrames
     idx = 1  # Index for naming
     h=1
+    a=[]
+    Arrayrt=[]
     for i in range(1,4):
         dfs[i]={}
-        idx=1
-        
+        Arrayrt=np.array(Arrayrt)
+        if i==2:
+            a = np.zeros_like(Arrayrt)
+        a+=Arrayrt
+        Arrayrt=[]
+        al=i
         for filename in os.listdir(directory_path):
-            
+
             if filename.endswith(".TXT") and filename.startswith("D"+str(i)):
                 
                 print(filename)
                 filepath = os.path.join(directory_path, filename)  # Get full path
                 dfs[i][f'trial{idx}'] = pd.read_csv(filepath)
-                
-                plot(filepath,i,idx,h)
+                rt60=plot(filepath,i,idx,h)
+                Arrayrt.append(rt60)
                 now = datetime.now()
                 date_time1 = now.strftime("%m-%d-%Y")
                 date_time = now.strftime("%m-%d-%Y%H%M%S")
@@ -129,12 +136,13 @@ def read_files_in_directory(directory_path):
                 plt.gcf().set_size_inches(16, 10)
                 plt.savefig(os.path.join(save_direct,date_time+'Device '+str(i)+' Runs '+str(idx)),dpi=100, bbox_inches='tight')
                 idx += 1
+                
+                h +=1   
          
-                h +=1 
-    return dfs
+    return dfs,a,al
 
 directory_path = os.getcwd()
-dataframes = read_files_in_directory(directory_path)
+dataframes,Arrayrt,index = read_files_in_directory(directory_path)
 
 
 combined_voltage = pd.DataFrame()
@@ -152,13 +160,10 @@ for i in range(1,4):
             combined_voltage[trial_name] = df['raw data']
             a[i]=combined_voltage
 b=np.array(a[1])
-print(b)
 
 
 
-
-
-
-
-
-
+print(Arrayrt)
+print(index-1)
+Array=Arrayrt/(index-1)
+print(Array)
